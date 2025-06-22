@@ -1,0 +1,122 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #333;
+    color: #fff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+nav ul li {
+    display: inline;
+    margin: 0 15px;
+}
+
+nav ul li a {
+    color: #fff;
+    text-decoration: none;
+}
+
+nav ul li a:hover {
+    text-decoration: underline;
+}
+
+#principal {
+    padding: 20px;
+    margin: 20px auto;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    max-width: 800px;
+}
+
+h1 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.mytextcard {
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    margin-top: 20px;
+    line-height: 1.6;
+}
+
+.mytextcard ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.mytextcard li {
+    margin-bottom: 10px;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+}
+
+.mytextcard li:last-child {
+    border-bottom: none;
+}
+
+.smallimage {
+    width: 100px;
+    height: auto;
+    vertical-align: middle;
+    margin-left: 10px;
+    border-radius: 4px;
+}
+
+.proj-research {
+    color: DarkOrange;
+    font-weight: bold;
+}
+
+.proj-teaching {
+    color: BlueViolet;
+    font-weight: bold;
+}
+
+/* New CSS for the about page (CV) */
+#principal h2 {
+    color: #555;
+    margin-top: 30px;
+    margin-bottom: 15px;
+    border-bottom: 2px solid #eee;
+    padding-bottom: 5px;
+}
+
+#principal ul.cv-list { /* Use a specific class for CV lists if not using mytextcard */
+    list-style: disc; /* Default bullet points */
+    margin-left: 20px;
+    padding-left: 0;
+}
+
+#principal ul.cv-list li {
+    margin-bottom: 8px;
+    border-bottom: none; /* Remove dashed line for CV list items */
+    padding-bottom: 0;
+}
+
+a {
+    color: blue;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}

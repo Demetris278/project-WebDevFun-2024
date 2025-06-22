@@ -1,0 +1,19 @@
+<div id="principal">
+    <h1>Projects</h1>
+    <div class="mytextcard">
+        <ul>
+            {{#each projects}}
+                <li>
+                    {{#if (eq type "Research")}}
+                        <span class="proj-research">
+                    {{else}}
+                        <span class="proj-teaching">
+                    {{/if}}
+                    {{year}}
+                    </span>
+                    // {{name}} // {{desc}} // <img src="{{url}}" alt="{{url}}" class="smallimage" />
+                </li>
+            {{/each}}
+        </ul>
+    </div>
+</div>
