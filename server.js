@@ -10,6 +10,92 @@ app.use(express.static('public')
     res.send('')
 })*/
 
+// Projects data (JSON variable)
+const projects = [
+    {
+        id: 1,
+        title: "Digital Portrait Series",
+        type: "Teaching",
+        year: 2023,
+        description: "Interactive digital art workshop teaching portrait composition and digital painting techniques",
+        image: "digital-portraits.jpg",
+        url: "https://github.com/example/digital-portraits"
+    },
+    {
+        id: 2,
+        title: "AI-Generated Art Research",
+        type: "Research",
+        year: 2023,
+        description: "Exploring the intersection of artificial intelligence and creative expression through generative art",
+        image: "ai-art-research.jpg",
+        url: "https://github.com/example/ai-art-research"
+    },
+    {
+        id: 3,
+        title: "Abstract Watercolor Workshop",
+        type: "Teaching",
+        year: 2022,
+        description: "Hands-on workshop exploring fluid watercolor techniques and abstract composition principles",
+        image: "watercolor-workshop.jpg",
+        url: "https://github.com/example/watercolor-workshop"
+    },
+    {
+        id: 4,
+        title: "Color Theory in Digital Media",
+        type: "Research",
+        year: 2022,
+        description: "Research study on color perception and emotional response in digital art installations",
+        image: "color-theory-study.jpg",
+        url: "https://github.com/example/color-theory-study"
+    },
+    {
+        id: 5,
+        title: "Sculpture Fundamentals Course",
+        type: "Teaching",
+        year: 2024,
+        description: "Comprehensive course covering clay modeling, stone carving, and metal sculpting techniques",
+        image: "sculpture-course.jpg",
+        url: "https://github.com/example/sculpture-course"
+    },
+    {
+        id: 6,
+        title: "Mixed Media Installation Study",
+        type: "Research",
+        year: 2024,
+        description: "Investigation of audience interaction with multimedia art installations in gallery spaces",
+        image: "mixed-media-installation.jpg",
+        url: "https://github.com/example/mixed-media-installation"
+    }
+];
+
+// Routes
+app.get('/', (req, res) => {
+    res.render('home', { 
+        title: 'Welcome to My Portfolio',
+        message: 'Hello! Welcome to my personal website.' 
+    });
+});
+
+app.get('/about', (req, res) => {
+    res.render('cvjl', { 
+        title: 'About Me - CV' 
+    });
+});
+
+app.get('/contact', (req, res) => {
+    res.render('contact', { 
+        title: 'Contact Information' 
+    });
+});
+
+app.get('/projects', (req, res) => {
+    res.render('projects', { 
+        title: 'My Projects',
+        projects: projects 
+    });
+});
+
+
 app.get('/game', function(req, res){
     res.sendFile('/Users/Admin/Desktop/unicoding/project-WebDevFun-2024/views/index.html')
 })
