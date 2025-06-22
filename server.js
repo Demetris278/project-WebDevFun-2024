@@ -1,129 +1,16 @@
-const express=require('express');
-
-const port=8080;
-const { engine }=require('express-handlebars');
-
-
-
+const express = require('express');
 const app = express();
-
-// HANDLEBARS
-app.engine('handlebars', engine({
-    helpers: {
-        eq(a, b) { return a == b; }
-    }
-}));
-app.set('view engine', 'handlebars');
-app.set('views', './views');
-
-
-app.get('/', function (req, res) {
-    res.render('home.handlebars');
-});
-
-app.use(express.static('public'));
-
-
-// Projects data (JSON variable)
-const projects = [
-    {
-        id: 1,
-        name: "Digital Portrait Series", 
-        type: "Teaching",
-        year: 2023,
-        desc: "Interactive digital art workshop teaching portrait composition and digital painting techniques",
-        image: "digital-portraits.jpg",
-        url: "https://github.com/example/digital-portraits"
-    },
-    {
-        id: 2,
-        name: "AI-Generated Art Research", 
-        type: "Research",
-        year: 2023,
-        desc: "Exploring the intersection of artificial intelligence and creative expression through generative art",
-        image: "ai-art-research.jpg",
-        url: "https://github.com/example/ai-art-research"
-    },
-    {
-        id: 3,
-        name: "Abstract Watercolor Workshop",
-        type: "Teaching",
-        year: 2022,
-        desc: "Hands-on workshop exploring fluid watercolor techniques and abstract composition principles",
-        image: "watercolor-workshop.jpg",
-        url: "https://github.com/example/watercolor-workshop"
-    },
-    {
-        id: 4,
-        name: "Color Theory in Digital Media",
-        type: "Research",
-        year: 2022,
-        desc: "Research study on color perception and emotional response in digital art installations", 
-        image: "color-theory-study.jpg",
-        url: "https://github.com/example/color-theory-study"
-    },
-    {
-        id: 5,
-        name: "Sculpture Fundamentals Course", 
-        type: "Teaching",
-        year: 2024,
-        desc: "Comprehensive course covering clay modeling, stone carving, and metal sculpting techniques",
-        image: "sculpture-course.jpg",
-        url: "https://github.com/example/sculpture-course"
-    },
-    {
-        id: 6,
-        name: "Mixed Media Installation Study", 
-        type: "Research",
-        year: 2024,
-        desc: "Investigation of audience interaction with multimedia art installations in gallery spaces", 
-        image: "mixed-media-installation.jpg",
-        url: "https://github.com/example/mixed-media-installation"
-    }
-];
-
-// Routes
-app.get('/', (req, res) => {
-    res.render('home', { 
-        title: 'Welcome to My Portfolio',
-        message: 'Hello! Welcome to my personal website.' 
-    });
-});
-
-
-app.get('/about', function (req, res) {
-    res.render('cvjl.handlebars');
-});
-
-
-app.get('/contact', function (req, res) {
-    res.render('contact.handlebars');
-});
-
-app.get('/game', function(req, res){
-    res.sendFile('/Users/Admin/Desktop/unicoding/project-WebDevFun-2024/views/index.html')
-});
-
-
-
-
-
-
-const sqlite3 = require('sqlite3'); // load the sqlite3 package
+const { engine } = require('express-handlebars');
+const sqlite3 = require('sqlite3');
 const fs = require('fs');
 
 // --- DATABASE ---
-const dbFile = 'my-project-data.sqlite3.db'; // Define your database file name
-let db = new sqlite3.Database(dbFile); // Initialize the database
+const dbFile = 'my-project-data.sqlite3.db';
+let db = new sqlite3.Database(dbFile);
 
-// --- MIDDLEWARES ---
+// --- USER FUNCTIONS ---
 
-// middleware to search for unknown routes into the 'public' directory
-app.use(express.static('public')); // the public directory is static
-
-// using express middleware for processing forms sent using the "post" method
-app.use(express.urlencoded({ extended: true }));
-
+// initTableSkills creates the 'skills' table and populates it
 function initTableSkills(mydb) {
     // MODEL for skills
     const skills = [
@@ -147,7 +34,7 @@ function initTableSkills(mydb) {
     // create table skills at startup
     mydb.run("CREATE TABLE skills (sid INTEGER PRIMARY KEY AUTOINCREMENT, sname TEXT NOT NULL, sdesc TEXT NOT NULL, stype TEXT NOT NULL, slevel INT)", (error) => {
         if (error) {
-            console.log("ERROR:", error); // error: display it in the terminal
+            console.log("ERROR creating skills table:", error); // error: display it in the terminal
         } else {
             console.log("Table skills created!"); // no error, the table has been created
 
@@ -169,7 +56,7 @@ function initTableSkills(mydb) {
 // initTableProjects creates the 'projects' table and populates it
 function initTableProjects(mydb) {
     // MODEL for projects
-    // Using the projects data from our previous conversation, with 'name' and 'desc'
+
     const projects = [
         {
             id: 1,
@@ -230,7 +117,7 @@ function initTableProjects(mydb) {
     // create table projects at startup
     mydb.run("CREATE TABLE projects (pid INTEGER PRIMARY KEY AUTOINCREMENT, pname TEXT NOT NULL, pyear INTEGER NOT NULL, pdesc TEXT NOT NULL, ptype TEXT NOT NULL, pimgURL TEXT NOT NULL)", (error) => {
         if (error) {
-            console.log("ERROR:", error); // error: display it in the terminal
+            console.log("ERROR creating projects table:", error); // error: display it in the terminal
         } else {
             console.log("Table projects created!"); // no error, the table has been created
 
@@ -250,16 +137,48 @@ function initTableProjects(mydb) {
 }
 
 
+// --- MIDDLEWARES ---
+
+// middleware to search for unknown routes into the 'public' directory
+app.use(express.static('public'));
+
+// using express middleware for processing forms sent using the "post" method
+app.use(express.urlencoded({ extended: true }));
+
+
+// --- HANDLEBARS ---
+app.engine('handlebars', engine({
+    helpers: {
+        eq(a, b) { return a == b; }
+    }
+}));
+app.set('view engine', 'handlebars');
+app.set('views', './views');
 
 
 // --- ROUTES ---
 
-// create a new route to send back the skills page
+// home route
+app.get('/', function (req, res) {
+    res.render('home.handlebars');
+});
+
+//route to send back my CV
+app.get('/about', function (req, res) {
+    res.render('cvjl.handlebars');
+});
+
+// /contact route that will render the contact information.
+app.get('/contact', function (req, res) {
+    res.render('contact.handlebars');
+});
+
+// fetch skills data from the database
 app.get('/skills', function (req, res) {
     db.all("SELECT * FROM skills", (error, listOfSkills) => {
         if (error) {
-            console.log("ERROR fetching skills:", error); // error: display in terminal
-            res.status(500).send("Error fetching skills."); // Send an error response to client
+            console.log("ERROR fetching skills:", error);
+            res.status(500).send("Error fetching skills.");
         } else {
             const model = { skills: listOfSkills };
             res.render('skills.handlebars', model);
@@ -267,7 +186,7 @@ app.get('/skills', function (req, res) {
     });
 });
 
-// Update the /projects route to fetch data from the database
+// fetch projectdata from the database
 app.get('/projects', function (req, res) {
     db.all("SELECT pid, pname, pyear, pdesc, ptype, pimgURL FROM projects", (error, listOfProjects) => {
         if (error) {
@@ -281,7 +200,7 @@ app.get('/projects', function (req, res) {
                 year: p.pyear,
                 desc: p.pdesc,
                 type: p.ptype,
-                image: p.pimgURL // Assuming pimgURL stores the filename (e.g., "digital-portraits.jpg")
+                image: p.pimgURL
             }));
             const model = { projects: projectsForHandlebars };
             res.render('projects.handlebars', model);
@@ -289,11 +208,12 @@ app.get('/projects', function (req, res) {
     });
 });
 
-
+// create a new route for the login page
 app.get('/login', (req, res) => {
     res.render('login.handlebars');
 });
 
+// create the POST route for the login form
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
 
@@ -302,13 +222,16 @@ app.post('/login', (req, res) => {
         return res.status(400).send('Username and password are required.');
     }
 
-    // For now, just send a response to test if data is received
+
     res.send(`Received: Username - ${username}, Password - ${password}`);
 });
 
+
+// --- LISTEN ---
+const port = process.env.PORT || 8080; 
 app.listen(port, function () { // listen to the port
-    initTableSkills(db); // create the table skills and populate it
-    initTableProjects(db); // create the table projects and populate it
-    // displays a message in the terminal when the server is listening
-    console.log(`Server is listening on port ${port}...`);
+
+    initTableSkills(db);
+    initTableProjects(db); 
+    console.log(`Server is listening on port ${port}... :)`);
 });
