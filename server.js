@@ -249,7 +249,6 @@ app.get('/projects', function (req, res) {
     db.all("SELECT pid, pname, pyear, pdesc, ptype, pimgURL FROM projects", (error, listOfProjects) => {
         if (error) {
             console.log("ERROR fetching projects:", error);
-            res.status(500).send("Error fetching projects.");
         } else {
             // Map the database column names to the Handlebars variable names
             const projectsForHandlebars = listOfProjects.map(p => ({
@@ -265,6 +264,106 @@ app.get('/projects', function (req, res) {
         }
     });
 });
+
+
+
+// delete one project
+app.get('/project/delete/:projid', function (req, res) {
+
+    const projid = req.params.projid;
+    console.log("Attempting to delete project ID:", projid);
+
+    db.run("DELETE FROM projects WHERE pid=?", [projid], (error) => {
+        if (error) {
+            console.log("ERROR deleting project:", error);
+            res.status(500).send("Error deleting project.");
+        } else {
+            console.log(`The project ${projid} has been deleted.`);
+            res.redirect('/projects'); // Redirect back to the projects list
+        }
+    });
+});
+
+// i placed the code for the new project route (project/new) before anything using /project/{id}
+// because not doing so treated "new" as a project id and led to a 404 error page
+// create new project form
+app.get('/project/new', function (req, res) {
+    console.log("οςκαδοςδκαοςαδκπςαδκοπ");
+    res.render('project-new.handlebars');
+});
+
+// submite new project
+app.post('/project/new', function (req, res) {
+
+    const name = req.body.projname;
+    const year = req.body.projyear;
+    const desc = req.body.projdesc;
+    const type = req.body.projtype;
+    const url = req.body.projurl; 
+
+    db.run("INSERT INTO projects (pname, pyear, pdesc, ptype, pimgURL) VALUES (?, ?, ?, ?, ?)", [name, year, desc, type, url], (error) => {
+        if (error) {
+            console.log("ERROR inserting new project:", error);
+            res.redirect('/projects');
+        } else {
+            console.log("Line added into the projects table!");
+            res.redirect('/projects'); 
+        }
+    });
+});
+
+// Route for a single project ( /project/1, /project/2 etc.)
+app.get('/project/:projectid', function (req, res) {
+    const projectId = req.params.projectid;
+    console.log("Project route parameter projectid:", projectId);
+
+    db.get("SELECT pid, pname, pyear, pdesc, ptype, pimgURL FROM projects WHERE pid=?", [projectId], (error, theProject) => {
+        if (error) {
+            console.log("ERROR fetching single project:", error);
+        }
+        else {
+            const model = { project: theProject };
+            res.render('project.handlebars', model);
+        }
+    });
+});
+
+// pre-fill form for modifying an existing project
+app.get('/project/modify/:projid', function (req, res) {
+
+    const id = req.params.projid;
+    db.get("SELECT pid, pname, pyear, pdesc, ptype, pimgURL FROM projects WHERE pid=?", [id], (error, theProject) => {
+        if (error) {
+            console.log("ERROR fetching project for modification:", error);
+        } 
+        else {
+            const model = { project: theProject };
+            res.render('project-new.handlebars', model); // Use the same form template for new/modify
+        }
+    });
+});
+
+// update existing project
+app.post('/project/modify/:projid', function (req, res) {
+
+
+    const id = req.params.projid;
+    const name = req.body.projname;
+    const year = req.body.projyear;
+    const desc = req.body.projdesc;
+    const type = req.body.projtype;
+    const url = req.body.projurl;
+
+    db.run("UPDATE projects SET pname=?, pyear=?, pdesc=?, ptype=?, pimgURL=? WHERE pid=?", [name, year, desc, type, url, id], (error) => {
+        if (error) {
+            console.log("ERROR updating project:", error);
+        } else {
+            console.log(`Project ${id} updated successfully.`);
+            res.redirect('/projects'); // Redirect back to the projects list
+        }
+    });
+});
+
 
 // create a new route for the login page
 app.get('/login', (req, res) => {
@@ -323,6 +422,14 @@ app.get('/logout', (req, res) => {
         }
     });
 });
+
+// --- ERROR HANDLING---
+
+// 404 NOT FOUND middleware
+app.use(function(req, res) {
+    res.status(404).render('404.handlebars');
+});
+
 
 
 // --- LISTEN ---

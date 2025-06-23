@@ -1,0 +1,66 @@
+<div id="principal">
+    {{#if project.pid}}
+        <h1>Modify project</h1>
+    {{else}}
+        <h1>New project</h1>
+    {{/if}}
+
+    <div class="mytextcard">
+        {{#if project.pid}}
+            <form action="/project/modify/{{project.pid}}" method="POST">
+        {{else}}
+            <form action="/project/new" method="POST">
+        {{/if}}
+
+            <label for="projname">Name:</label>
+            <input type="text" id="projname" name="projname" required="required"
+                {{#if project.pname}} value="{{project.pname}}" {{/if}}
+            ><br /><br />
+
+            <label for="projyear">Year: </label>
+            <input type="number" id="projyear" name="projyear" min="1990" max="2050" required="required"
+                {{#if project.pyear}} value="{{project.pyear}}" {{/if}}
+            ><br /><br />
+
+            <label for="projdesc">Description: </label>
+            <textarea id="projdesc" name="projdesc" rows="5" required="required">{{#if project.pdesc}}{{project.pdesc}}{{/if}}</textarea><br /><br />
+
+            <label for="projtype">Type:</label>
+            <select name="projtype" id="projtype">
+                <option value="Research" {{#if (eq project.ptype "Research")}} selected="selected" {{/if}}>Research</option>
+                <option value="Teaching" {{#if (eq project.ptype "Teaching")}} selected="selected" {{/if}}>Teaching</option>
+                <option value="Personal" {{#if (eq project.ptype "Personal")}} selected="selected" {{/if}}>Personal</option>
+            </select><br /><br />
+
+            <label for="projurl">Image URL (filename in /img/):</label>
+            <input type="text" id="projurl" name="projurl" placeholder="/img/something.png" required="required"
+                {{#if project.pimgURL}} value="{{project.pimgURL}}" {{/if}}
+            ><br /><br />
+
+            <input type="submit" value="{{#if project.pid}}Modify project{{else}}Create new project{{/if}}" style="background-color: #007bff; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer;">
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Basic styling for the form elements for better appearance */
+    #principal form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+    #principal form input[type="text"],
+    #principal form input[type="number"],
+    #principal form textarea,
+    #principal form select {
+        width: calc(100% - 22px); /* Account for padding and border */
+        padding: 10px;
+        margin-bottom: 15px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box; /* Include padding and border in the element's total width and height */
+    }
+    #principal form textarea {
+        resize: vertical;
+    }
+</style>

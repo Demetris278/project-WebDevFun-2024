@@ -1,17 +1,23 @@
 <div id="principal">
     <h1>Projects</h1>
+
+    {{#if session.isAdmin}}
+        <div style="margin-bottom: 20px;">
+            <a href="/project/new" style="background-color: #4CAF50; color: white; padding: 10px 15px; border-radius: 5px; text-decoration: none; display: inline-block;">New project</a>
+        </div>
+    {{/if}}
+
     <div class="mytextcard">
         <ul>
             {{#each projects}}
                 <li>
-                    {{#if (eq type "Research")}}
-                        <span class="proj-research">
-                    {{else}}
-                        <span class="proj-teaching">
+                    <!-- Corrected: Displaying project name and year -->
+                    <a href="/project/{{id}}" style="font-weight: bold;">{{name}}</a>, {{year}}
+
+                    {{#if ../session.isAdmin}}
+                        <a href="/project/modify/{{id}}" class="modify" style="margin-left: 15px; color: orange; text-decoration: none;">modify</a>
+                        <a href="/project/delete/{{id}}" class="delete" style="margin-left: 10px; color: red; text-decoration: none;">delete</a>
                     {{/if}}
-                    {{year}}
-                    </span>
-                    // {{name}} // {{desc}} // <img src="{{url}}" alt="{{url}}" class="smallimage" />
                 </li>
             {{/each}}
         </ul>

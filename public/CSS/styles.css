@@ -81,6 +81,15 @@ h1 {
     border-radius: 4px;
 }
 
+.bigimage {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+    border: 1px solid #ddd;
+    box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
+}
+
 .proj-research {
     color: DarkOrange;
     font-weight: bold;
@@ -110,6 +119,26 @@ h1 {
     margin-bottom: 8px;
     border-bottom: none; /* Remove dashed line for CV list items */
     padding-bottom: 0;
+}
+
+#principal form label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: bold;
+    }
+#principal form input[type="text"],
+#principal form input[type="number"],
+#principal form textarea,
+#principal form select {
+    width: calc(100% - 22px); 
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+#principal form textarea {
+    resize: vertical;
 }
 
 a {
