@@ -3,10 +3,48 @@ const app = express();
 const { engine } = require('express-handlebars');
 const sqlite3 = require('sqlite3');
 const fs = require('fs');
+const bcrypt = require('bcrypt'); // Load bcrypt
+const session = require('express-session'); // sessions 
+const connectSqlite3 = require('connect-sqlite3'); // store sessions in sQLite3 database
 
 // --- DATABASE ---
 const dbFile = 'my-project-data.sqlite3.db';
 let db = new sqlite3.Database(dbFile);
+
+// --- SESSIONS ---
+const SQLiteStore = connectSqlite3(session); // Initialize SQLiteStore for sessions
+
+app.use(session({ // definesession
+    store: new SQLiteStore({ db: "session-db.db" }), 
+    saveUninitialized: false, 
+    resave: false,
+    secret: "This123Is@Another#456GreatSecret678%Sentence"
+}));
+
+// This middleware makes session variables available to Handlebars templates via `session.propertyName`
+app.use(function (req, res, next) {
+    console.log("Session passed to response locals...")
+    res.locals.session = req.session;
+    next();
+});
+
+// --- GLOBAL DEFINITIONS ---
+const adminName = 'jerome'; 
+const adminPassword = '$2b$12$rW.1ZKQyXeTkwvy8xuGDQuI.Hi6Q61UFufRvIxM.DvFjVOmlbJl3S'; 
+
+// salt rounds for bcrypt algorithm
+const saltRounds = 12;
+
+// --- Run this code ONLY ONCE! ---
+
+// bcrypt.hash(adminPassword, saltRounds, function(err, hash) {
+//     if (err) {
+//         console.log("---> Error encrypting the password: ", err);
+//     } else {
+//         console.log("---> Hashed password (GENERATE only ONCE): ", hash);
+//     }
+// });
+
 
 // --- USER FUNCTIONS ---
 
@@ -124,7 +162,7 @@ function initTableProjects(mydb) {
             // inserts projects
             projects.forEach((oneProject) => {
                 mydb.run("INSERT INTO projects (pid, pname, pyear, pdesc, ptype, pimgURL) VALUES (?, ?, ?, ?, ?, ?)",
-                    [oneProject.id, oneProject.name, oneProject.year, oneProject.desc, oneProject.type, oneProject.image], (error) => { // NOTE: pimgURL expects the image filename
+                    [oneProject.id, oneProject.name, oneProject.year, oneProject.desc, oneProject.type, oneProject.image], (error) => { 
                         if (error) {
                             console.log("ERROR inserting project:", error);
                         } else {
@@ -145,6 +183,20 @@ app.use(express.static('public'));
 // using express middleware for processing forms sent using the "post" method
 app.use(express.urlencoded({ extended: true }));
 
+// --- SESSIONS ---
+
+app.use(session({ // define the session
+    store: new SQLiteStore({ db: "session-db.db" }), 
+    saveUninitialized: false, 
+    resave: false, 
+    secret: "This123Is@Another#456GreatSecret678%Sentence"
+}));
+
+//make session variables available to Handlebars templates via `session.propertyName`
+app.use(function (req, res, next) {
+    res.locals.session = req.session;
+    next();
+});
 
 // --- HANDLEBARS ---
 app.engine('handlebars', engine({
@@ -160,7 +212,13 @@ app.set('views', './views');
 
 // home route
 app.get('/', function (req, res) {
-    res.render('home.handlebars');
+    const model = {
+        // isLoggedIn: req.session.isLoggedIn, // Not needed because we are using res.locals.session?
+        // name: req.session.name,
+        // isAdmin: req.session.isAdmin
+    };
+    console.log("---> Home model (session data via res.locals): " + JSON.stringify(req.session)); 
+    res.render('home.handlebars', model);
 });
 
 //route to send back my CV
@@ -215,15 +273,55 @@ app.get('/login', (req, res) => {
 
 // create the POST route for the login form
 app.post('/login', (req, res) => {
-    const { username, password } = req.body;
+    const username = req.body.username;
+    const password = req.body.password;
 
-    // verification steps
     if (!username || !password) {
-        return res.status(400).send('Username and password are required.');
+        const model = { error: "Username and password are required.", message: "" };
+        return res.status(400).render('login.handlebars', model);
     }
 
+    if (username === adminName) {
+        console.log('The username is the admin one!');
 
-    res.send(`Received: Username - ${username}, Password - ${password}`);
+        bcrypt.compare(password, adminPassword, (err, result) => {
+            if (err) {
+                const model = { error: "Error while comparing passwords: " + err.message, message: "" };
+                return res.render('login.handlebars', model);
+            }
+
+            if (result) { // result is true if passwords match, false otherwise
+                console.log('The password is the admin one!');
+                // Save information into the session upon successful login
+                req.session.isAdmin = true;
+                req.session.isLoggedIn = true;
+                req.session.name = username;
+                console.log("Session information: " + JSON.stringify(req.session));
+
+                // Redirect to the home page after successful login
+                res.redirect("/");
+            } else {
+                const model = { error: "Sorry, the password is not correct...", message: "" };
+                res.status(400).render('login.handlebars', model);
+            }
+        });
+
+    } else {
+        const model = { error: `Sorry, the username ${username} is not correct...`, message: "" };
+        res.status(400).render('login.handlebars', model);
+    }
+});
+
+// Create the /logout route to destroy the session
+app.get('/logout', (req, res) => {
+    req.session.destroy((err) => { // destroy the current session
+        if (err) {
+            console.log("Error while destroying the session:", err);
+        } else {
+            console.log('Logged out...');
+            res.redirect('/'); // Redirect to home
+        }
+    });
 });
 
 

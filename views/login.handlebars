@@ -8,5 +8,13 @@
             <input type="password" id="password" name="password" required><br /><br />
             <input type="submit" value="Login">
         </form>
+
+        {{#if error}}
+            <div class="error" style="color: red; margin-top: 15px;">{{error}}</div>
+        {{/if}}
+
+        {{#if message}}
+            <div class="message" style="color: green; margin-top: 15px;">{{message}}</div>
+        {{/if}}
     </div>
 </div>
